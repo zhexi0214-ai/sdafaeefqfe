@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>白夜与解忧 —— 东野圭吾纪念微展厅</title>
+
+<!-- Tailwind -->
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- Three.js (r128, global THREE) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<!-- Lottie -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.12.2/lottie.min.js"></script>
+<!-- Lucide Icons -->
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500;700;900&family=Cinzel:wght@400;500;600&display=swap" rel="stylesheet">
+
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          ink: '#0b0d12', ink2: '#0d1117',
+          gold: '#d4af37', goldlt: '#e8c874', snow: '#f5f5f0',
+        },
+        fontFamily: {
+          serif: ['"Noto Serif SC"', 'serif'],
+          cinzel: ['"Cinzel"', 'serif'],
+        },
+      },
+    },
+  };
+</script>
+
+<style>
+  :root{
+    --ink:#0b0d12; --ink2:#0d1117;
+    --gold:#d4af37; --goldlt:#e8c874; --snow:#f5f5f0;
+  }
+  *{ box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  body{
+    background-color:var(--ink);
+    background-image:
+      radial-gradient(1200px 800px at 50% -10%, rgba(60,52,30,0.35), transparent 60%),
+      radial-gradient(900px 700px at 90% 20%, rgba(40,55,75,0.22), transparent 60%),
+      radial-gradient(1000px 900px at 10% 80%, rgba(50,40,25,0.18), transparent 60%);
+    color:var(--snow);
+    font-family:"Noto Serif SC", serif;
+    overflow-x:hidden;
+  }
+  body::after{
+    content:""; position:fixed; inset:0; pointer-events:none; z-index:60;
+    background:radial-gradient(120% 120% at 50% 50%, transparent 55%, rgba(0,0,0,0.55) 100%);
+    mix-blend-mode:multiply;
+  }
+  #particles{ position:fixed; inset:0; z-index:0; pointer-events:none; }
+  ::-webkit-scrollbar{ width:9px; }
+  ::-webkit-scrollbar-track{ background:#070809; }
+  ::-webkit-scrollbar-thumb{ background:linear-gradient(#d4af37,#7a6322); border-radius:9px; }
+  ::selection{ background:rgba(212,175,55,0.3); color:#fff; }
+
+  .reveal{ opacity:0; transform:translateY(40px); transition:opacity 1.1s cubic-bezier(.2,.7,.2,1), transform 1.1s cubic-bezier(.2,.7,.2,1); }
+  .reveal.in{ opacity:1; transform:none; }
+  .reveal.d1{ transition-delay:.15s; }
+  .reveal.d2{ transition-delay:.3s; }
+  .reveal.d3{ transition-delay:.45s; }
+
+  .gold-text{
+    background:linear-gradient(180deg,#f6e9bf 0%, #d4af37 45%, #9c7a23 100%);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    filter:drop-shadow(0 0 18px rgba(212,175,55,0.35));
+  }
+  .hairline{ height:1px; background:linear-gradient(90deg,transparent,rgba(212,175,55,0.6),transparent); }
+
+  .nav-wrap{ backdrop-filter:blur(6px); background:linear-gradient(180deg, rgba(11,13,18,0.7), rgba(11,13,18,0)); }
+  .audio-btn{
+    position:relative; display:inline-flex; align-items:center; gap:.55rem;
+    padding:.55rem 1rem; border-radius:999px;
+    border:1px solid rgba(212,175,55,0.45);
+    background:rgba(13,17,23,0.55);
+    color:var(--goldlt); font-size:.82rem; letter-spacing:.18em;
+    transition:all .4s ease; cursor:pointer;
+  }
+  .audio-btn:hover{ border-color:rgba(212,175,55,0.9); box-shadow:0 0 24px rgba(212,175,55,0.25); }
+  .audio-btn .icon{ width:16px; height:16px; }
+  .audio-btn.on{ background:rgba(212,175,55,0.12); box-shadow:0 0 30px rgba(212,175,55,0.35); }
+  .audio-btn .pulse{ position:absolute; left:.6rem; width:7px; height:7px; border-radius:50%; background:var(--gold); opacity:0; }
+  .audio-btn.on .pulse{ opacity:1; animation:beat 1.6s infinite; }
+  @keyframes beat{ 0%{ box-shadow:0 0 0 0 rgba(212,175,55,.6);} 100%{ box-shadow:0 0 0 12px rgba(212,175,55,0);} }
+
+  #hero{ position:relative; min-height:100vh; }
+  .hero-bg{
+    position:absolute; inset:0; z-index:0;
+    background-image:url('./higashino.jpg');
+    background-size:cover; background-position:center 25%;
+    filter:blur(3px) brightness(.32) saturate(.7) contrast(1.05);
+    transform:scale(1.08); animation:slowzoom 26s ease-in-out infinite alternate;
+  }
+  @keyframes slowzoom{ to{ transform:scale(1.18); } }
+  .hero-mask{
+    position:absolute; inset:0; z-index:1;
+    background:
+      radial-gradient(60% 70% at 50% 45%, rgba(13,17,23,0.15), rgba(13,17,23,0.7) 70%, var(--ink) 100%),
+      linear-gradient(180deg, rgba(11,13,18,0.55) 0%, transparent 30%, transparent 60%, var(--ink) 100%);
+  }
+  .portrait-wrap{
+    position:relative; width:300px; height:402px; border-radius:14px; padding:3px; margin:0 auto;
+    background:linear-gradient(140deg, rgba(212,175,55,0.7), rgba(212,175,55,0.05) 45%, rgba(212,175,55,0.5) 100%);
+    box-shadow:0 0 70px rgba(212,175,55,0.28), 0 0 160px rgba(212,175,55,0.12), inset 0 0 22px rgba(0,0,0,0.45);
+    animation:glowpulse 5s ease-in-out infinite;
+  }
+  @keyframes glowpulse{ 0%,100%{ box-shadow:0 0 60px rgba(212,175,55,.22),0 0 140px rgba(212,175,55,.10), inset 0 0 22px rgba(0,0,0,.45);} 50%{ box-shadow:0 0 90px rgba(212,175,55,.38),0 0 190px rgba(212,175,55,.18), inset 0 0 22px rgba(0,0,0,.45);} }
+  .portrait{ width:100%; height:100%; object-fit:cover; object-position:center 22%; border-radius:11px; filter:saturate(.85) contrast(1.05) brightness(.95); }
+  .portrait-wrap::after{ content:""; position:absolute; inset:-1px; border-radius:14px; pointer-events:none; border:1px solid rgba(212,175,55,0.25); }
+  .scroll-hint{ width:1px; height:64px; margin:0 auto; background:linear-gradient(180deg,transparent,rgba(212,175,55,0.8)); position:relative; }
+  .scroll-hint::after{ content:""; position:absolute; top:0; left:-3px; width:7px; height:18px; border-radius:4px; background:var(--goldlt); filter:blur(.5px); animation:drop 2.2s ease-in-out infinite; }
+  @keyframes drop{ 0%{ top:-2px; opacity:0;} 30%{opacity:1;} 100%{ top:60px; opacity:0;} }
+
+  section{ position:relative; z-index:2; }
+  .eyebrow{ letter-spacing:.42em; font-size:.72rem; color:var(--goldlt); opacity:.85; }
+
+  .scene-card{
+    position:relative; border-radius:16px; overflow:hidden; min-height:340px;
+    border:1px solid rgba(212,175,55,0.18);
+    background-size:cover; background-position:center;
+    box-shadow:0 20px 60px rgba(0,0,0,0.5);
+    transition:transform .7s cubic-bezier(.2,.7,.2,1), box-shadow .7s ease, border-color .7s ease;
+  }
+  .scene-card:hover{ transform:translateY(-10px) scale(1.015); box-shadow:0 30px 80px rgba(0,0,0,0.65), 0 0 40px rgba(212,175,55,0.18); border-color:rgba(212,175,55,0.45); }
+  .scene-card .scrim{ position:absolute; inset:0; background:linear-gradient(180deg, rgba(11,13,18,0.15) 0%, rgba(11,13,18,0.2) 40%, rgba(11,13,18,0.92) 100%); }
+  .scene-card .grad-fallback{ position:absolute; inset:0; z-index:0; }
+
+  #three-container{ position:relative; width:100%; height:78vh; min-height:560px; cursor:default; }
+  #three-container canvas{ display:block; }
+  .three-hint{ position:absolute; left:50%; bottom:18px; transform:translateX(-50%); font-size:.72rem; letter-spacing:.28em; color:rgba(232,200,116,0.6); pointer-events:none; }
+  .gallery-fallback{ display:none; }
+  body.no-webgl #three-container{ display:none; }
+  body.no-webgl .gallery-fallback{ display:grid; }
+
+  #modal{ position:fixed; inset:0; z-index:90; display:flex; align-items:center; justify-content:center; padding:1.5rem; opacity:0; pointer-events:none; transition:opacity .5s ease; }
+  #modal.open{ opacity:1; pointer-events:auto; }
+  #modal .bg{ position:absolute; inset:0; background:rgba(5,6,9,0.78); backdrop-filter:blur(8px); }
+  .modal-card{
+    position:relative; z-index:2; max-width:620px; width:100%; padding:2.6rem 2.4rem; border-radius:18px;
+    background:linear-gradient(160deg, rgba(22,24,32,0.96), rgba(11,13,18,0.98));
+    border:1px solid rgba(212,175,55,0.35);
+    box-shadow:0 30px 90px rgba(0,0,0,0.7), 0 0 60px rgba(212,175,55,0.12);
+    transform:translateY(20px) scale(.97); transition:transform .5s cubic-bezier(.2,.7,.2,1);
+  }
+  #modal.open .modal-card{ transform:none; }
+  .modal-close{ position:absolute; top:14px; right:16px; width:34px; height:34px; border-radius:50%; border:1px solid rgba(212,175,55,0.4); color:var(--goldlt); background:transparent; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .3s; }
+  .modal-close:hover{ background:rgba(212,175,55,0.15); transform:rotate(90deg); }
+
+  .candle-stage{ position:relative; height:340px; display:flex; align-items:flex-end; justify-content:center; }
+  .candle{ position:relative; width:64px; height:150px; }
+  .candle-body{ position:absolute; bottom:0; width:64px; height:120px; border-radius:8px 8px 5px 5px; background:linear-gradient(180deg,#f3ead7,#cdbf9f); box-shadow:inset -10px 0 16px rgba(0,0,0,.18), inset 6px 0 10px rgba(255,255,255,.4); }
+  .candle-body::before{ content:""; position:absolute; left:8px; top:0; width:6px; height:120px; background:linear-gradient(180deg, rgba(255,255,255,.5), transparent); border-radius:6px; }
+  .wick{ position:absolute; left:50%; top:-2px; transform:translateX(-50%); width:2.5px; height:16px; background:#2a1d10; border-radius:2px; z-index:3; }
+  .flame{ position:absolute; left:50%; top:-38px; transform:translateX(-50%) scale(0); width:22px; height:44px; border-radius:50% 50% 50% 50%/60% 60% 40% 40%; background:radial-gradient(ellipse at 50% 72%, #fffbe6 0%, #ffd86b 35%, #ff9a2e 62%, rgba(255,120,30,0) 78%); filter:blur(.4px); transform-origin:bottom center; opacity:0; transition:opacity .8s ease, transform .8s cubic-bezier(.2,.8,.2,1); z-index:4; }
+  .candle.lit .flame{ opacity:1; transform:translateX(-50%) scale(1); animation:flicker 1.5s ease-in-out infinite alternate; }
+  @keyframes flicker{ 0%{ transform:translateX(-50%) scale(1,1) rotate(-2deg); filter:blur(.4px) brightness(1);} 50%{ transform:translateX(-50%) scale(1.06,1.14) rotate(1deg);} 100%{ transform:translateX(-50%) scale(.96,1.08) rotate(2deg); filter:blur(.4px) brightness(1.1);} }
+  .candle-glow{ position:absolute; left:50%; bottom:120px; transform:translateX(-50%) scale(0); width:520px; height:520px; border-radius:50%; background:radial-gradient(circle, rgba(255,180,70,0.32) 0%, rgba(255,150,50,0.14) 30%, transparent 65%); opacity:0; transition:opacity 1.2s ease, transform 1.2s ease; pointer-events:none; }
+  .candle.lit .candle-glow{ opacity:1; transform:translateX(-50%) scale(1); animation:glowbreath 4s ease-in-out infinite; }
+  @keyframes glowbreath{ 0%,100%{ transform:translateX(-50%) scale(1);} 50%{ transform:translateX(-50%) scale(1.08);} }
+  #lottie-spark{ position:absolute; left:50%; bottom:60px; transform:translateX(-50%); width:240px; height:360px; opacity:0; transition:opacity .8s ease; pointer-events:none; z-index:5; }
+  .lit-wrap.lit-on #lottie-spark{ opacity:1; }
+
+  .candle-btn{ margin-top:2rem; padding:.85rem 2rem; border-radius:999px; cursor:pointer; font-size:.85rem; letter-spacing:.3em; border:1px solid rgba(212,175,55,0.5); color:var(--goldlt); background:rgba(13,17,23,0.5); transition:all .5s ease; position:relative; overflow:hidden; }
+  .candle-btn:hover{ background:rgba(212,175,55,0.12); box-shadow:0 0 30px rgba(212,175,55,0.3); }
+  .candle-btn .ico{ width:16px; height:16px; display:inline; vertical-align:-3px; margin-right:.5rem; }
+
+  #candleVeil{ position:fixed; inset:0; z-index:3; pointer-events:none; opacity:0; transition:opacity 2s ease; background:radial-gradient(60% 50% at 50% 60%, rgba(255,170,70,0.12), transparent 60%); }
+  body.candle-lit #candleVeil{ opacity:1; }
+
+  #starWall{ opacity:0; transform:translateY(30px); transition:opacity 1.2s ease, transform 1.2s ease; pointer-events:none; }
+  #starWall.shown{ opacity:1; transform:none; pointer-events:auto; }
+  .star-card{ position:relative; padding:1.5rem 1.6rem; border-radius:14px; background:linear-gradient(160deg, rgba(20,22,30,0.7), rgba(11,13,18,0.85)); border:1px solid rgba(212,175,55,0.18); box-shadow:0 10px 40px rgba(0,0,0,0.4); transition:transform .6s ease, border-color .6s ease, box-shadow .6s ease, opacity .6s ease; }
+  .star-card:hover{ transform:translateY(-6px); border-color:rgba(212,175,55,0.45); box-shadow:0 18px 50px rgba(0,0,0,.5), 0 0 30px rgba(212,175,55,.15); }
+  .star-card .star-dot{ width:7px; height:7px; border-radius:50%; background:var(--goldlt); box-shadow:0 0 12px rgba(212,175,55,.9); display:inline-block; margin-right:.6rem; vertical-align:middle; animation:twinkle 2.6s ease-in-out infinite; }
+  @keyframes twinkle{ 0%,100%{ opacity:.4; transform:scale(.8);} 50%{ opacity:1; transform:scale(1.15);} }
+
+  footer{ position:relative; z-index:2; }
+  @media (max-width:640px){ .portrait-wrap{ width:220px; height:295px; } }
+</style>
+</head>
+<body class="font-serif antialiased">
+
+<canvas id="particles"></canvas>
+<div id="candleVeil"></div>
+
+<nav class="nav-wrap fixed top-0 inset-x-0 z-50">
+  <div class="flex items-center justify-between px-6 py-4">
+    <div class="font-cinzel tracking-[0.32em] text-goldlt text-xs sm:text-sm">白夜与解忧 · HIGASHINO</div>
+    <button id="audioToggle" class="audio-btn">
+      <span class="pulse"></span>
+      <i data-lucide="cloud-rain" class="icon"></i>
+      <span id="audioLabel">雨夜</span>
+    </button>
+  </div>
+</nav>
+
+<header id="hero" class="flex flex-col items-center justify-center">
+  <div class="hero-bg"></div>
+  <div class="hero-mask"></div>
+  <div class="relative z-10 flex flex-col items-center text-center px-6 pt-28 pb-16">
+    <p class="eyebrow reveal mb-8">KEIGO HIGASHINO · MEMORIAL EXHIBITION</p>
+    <div class="portrait-wrap reveal d1">
+      <img class="portrait" src="./higashino.jpg" alt="东野圭吾 Keigo Higashino" />
+    </div>
+    <h1 class="font-serif gold-text text-5xl sm:text-7xl md:text-8xl font-black tracking-wider mt-12 reveal d2">白夜与解忧</h1>
+    <div class="hairline w-40 my-7 reveal d2"></div>
+    <p class="font-serif text-lg sm:text-2xl text-snow/75 reveal d3">东野圭吾 · 纪念微展厅</p>
+    <p class="font-cinzel text-xs sm:text-sm text-snow/40 mt-3 tracking-[0.3em] reveal d3">A NIGHT WITHOUT SUN, A STORE OF MIRACLES</p>
+    <div class="scroll-hint mt-16 reveal d3"></div>
+  </div>
+</header>
+
+<section class="max-w-3xl mx-auto px-6 py-28 text-center">
+  <p class="eyebrow reveal">PROLOGUE · 序章</p>
+  <div class="hairline w-24 mx-auto my-6 reveal"></div>
+  <p class="text-lg sm:text-xl leading-loose text-snow/80 reveal d1">
+    东野圭吾，1958 年生于日本大阪。工程师出身的他，以冷峻的逻辑书写人心深处的温度。
+    从《白夜行》里没有太阳的天空，到《解忧杂货店》中替陌生人回信的微光——
+    他在黑夜与白昼之间，为每一个孤独的灵魂，留一盏不灭的灯。
+  </p>
+  <blockquote class="mt-12 reveal d2">
+    <p class="font-serif text-2xl sm:text-3xl gold-text leading-relaxed">“世上有两样东西不可直视，<br/>一是太阳，二是人心。”</p>
+    <p class="text-snow/40 mt-4 text-sm tracking-widest">—— 《白夜行》</p>
+  </blockquote>
+</section>
+
+<section class="px-6 py-20">
+  <div class="max-w-6xl mx-auto text-center mb-8">
+    <p class="eyebrow reveal">CHAPTER I · 立体书廊</p>
+    <div class="hairline w-24 mx-auto my-6 reveal"></div>
+    <h2 class="font-serif text-3xl sm:text-5xl gold-text reveal d1">四部经典 · 3D 展厅</h2>
+    <p class="text-snow/55 mt-4 reveal d2">悬停以唤醒书脊 · 轻触翻开名句</p>
+  </div>
+  <div id="three-container" class="max-w-6xl mx-auto reveal d1">
+    <div class="three-hint">DRIFT · HOVER · CLICK</div>
+  </div>
+  <div class="gallery-fallback max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 mt-6" id="galleryFallback"></div>
+</section>
+
+<section class="px-6 py-24">
+  <div class="max-w-6xl mx-auto text-center mb-12">
+    <p class="eyebrow reveal">CHAPTER II · 意境碎片</p>
+    <div class="hairline w-24 mx-auto my-6 reveal"></div>
+    <h2 class="font-serif text-3xl sm:text-5xl gold-text reveal d1">雪、邮筒与打字机</h2>
+    <p class="text-snow/55 mt-4 reveal d2">流动的高清摄影，构筑东野圭吾的文学夜色</p>
+  </div>
+  <div class="max-w-6xl mx-auto grid md:grid-cols-3 gap-7">
+    <div class="scene-card reveal d1">
+      <div class="grad-fallback" style="background:linear-gradient(160deg,#16243a,#06121f)"></div>
+      <img class="absolute inset-0 w-full h-full object-cover" alt="雪夜东京" loading="eager"
+           src="./scene-tokyo.jpg">
+      <div class="scrim"></div>
+      <div class="relative z-10 h-full flex flex-col justify-end p-7">
+        <p class="font-cinzel text-xs tracking-[0.3em] text-goldlt/80">SCENE 01</p>
+        <h3 class="font-serif text-2xl text-snow mt-2">雪夜东京</h3>
+        <p class="text-snow/55 text-sm mt-2 leading-relaxed">霓虹被雪吞没，城市如未解的密语。</p>
+      </div>
+    </div>
+    <div class="scene-card reveal d2">
+      <div class="grad-fallback" style="background:linear-gradient(160deg,#2a2418,#120d06)"></div>
+      <img class="absolute inset-0 w-full h-full object-cover" alt="深夜老旧邮筒" loading="eager"
+           src="./scene-mailbox.jpg">
+      <div class="scrim"></div>
+      <div class="relative z-10 h-full flex flex-col justify-end p-7">
+        <p class="font-cinzel text-xs tracking-[0.3em] text-goldlt/80">SCENE 02</p>
+        <h3 class="font-serif text-2xl text-snow mt-2">深夜老旧邮筒</h3>
+        <p class="text-snow/55 text-sm mt-2 leading-relaxed">投入一封无人收信的信，等待奇迹回响。</p>
+      </div>
+    </div>
+    <div class="scene-card reveal d3">
+      <div class="grad-fallback" style="background:linear-gradient(160deg,#1a2230,#070b12)"></div>
+      <img class="absolute inset-0 w-full h-full object-cover" alt="打字机与冷光" loading="eager"
+           src="./scene-typewriter.jpg">
+      <div class="scrim"></div>
+      <div class="relative z-10 h-full flex flex-col justify-end p-7">
+        <p class="font-cinzel text-xs tracking-[0.3em] text-goldlt/80">SCENE 03</p>
+        <h3 class="font-serif text-2xl text-snow mt-2">打字机与冷光</h3>
+        <p class="text-snow/55 text-sm mt-2 leading-relaxed">每一记敲击，都是逼近真相的脚步。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="px-6 py-28 text-center relative">
+  <div class="max-w-3xl mx-auto">
+    <p class="eyebrow reveal">FINALE · 纪念之烛</p>
+    <div class="hairline w-24 mx-auto my-6 reveal"></div>
+    <h2 class="font-serif text-3xl sm:text-5xl gold-text reveal d1">点亮纪念之烛</h2>
+    <p class="text-snow/55 mt-4 reveal d2">Light a Candle · 愿光照亮每一段未竟的告白</p>
+
+    <div class="lit-wrap relative inline-block mt-12 reveal d2" id="litWrap">
+      <div class="candle-stage">
+        <div class="candle-glow"></div>
+        <div class="candle" id="candle">
+          <div class="candle-body"></div>
+          <div class="wick"></div>
+          <div class="flame"></div>
+        </div>
+        <div id="lottie-spark"></div>
+      </div>
+    </div>
+
+    <div class="reveal d3">
+      <button id="lightCandle" class="candle-btn">
+        <i data-lucide="flame" class="ico"></i><span id="candleLabel">点亮纪念之烛</span>
+      </button>
+    </div>
+  </div>
+
+  <div id="starWall" class="max-w-6xl mx-auto mt-20 grid sm:grid-cols-2 lg:grid-cols-4 gap-5"></div>
+</section>
+
+<footer class="px-6 py-16 text-center border-t border-gold/10">
+  <p class="font-cinzel text-xs tracking-[0.3em] text-snow/35">IN MEMORY OF KEIGO HIGASHINO'S NIGHTS</p>
+  <p class="font-serif text-snow/30 text-sm mt-3">白夜与解忧 · 纪念微展厅 · 谨以此致敬那些在暗夜里替我们点灯的人</p>
+  <div class="hairline w-48 mx-auto mt-8"></div>
+</footer>
+
+<div id="modal" role="dialog" aria-modal="true">
+  <div class="bg" id="modalBg"></div>
+  <div class="modal-card">
+    <button class="modal-close" id="modalClose" aria-label="关闭"><i data-lucide="x"></i></button>
+    <p class="font-cinzel text-xs tracking-[0.3em] text-goldlt/70" id="modalEn">JOURNEY UNDER THE MIDNIGHT SUN</p>
+    <h3 class="font-serif text-3xl gold-text mt-3" id="modalTitle">白夜行</h3>
+    <div class="hairline w-16 my-5"></div>
+    <p class="font-serif text-lg sm:text-xl leading-loose text-snow/85" id="modalQuote">“我的天空里没有太阳……”</p>
+    <p class="text-snow/45 text-sm mt-6 tracking-widest" id="modalAuthor">—— 东野圭吾</p>
+  </div>
+</div>
+
+<script>
+/* 1. PARTICLE BACKGROUND */
+(function(){
+  const cv = document.getElementById('particles');
+  const ctx = cv.getContext('2d');
+  let W, H, parts = [];
+  function resize(){ W = cv.width = innerWidth; H = cv.height = innerHeight; }
+  resize(); addEventListener('resize', resize);
+  function mk(reentry){
+    return { x: Math.random()*W, y: reentry ? -10 : Math.random()*H,
+      r: Math.random()*1.7 + 0.4, vy: Math.random()*0.45 + 0.12,
+      vx: (Math.random()-0.5)*0.28, a: Math.random()*0.55 + 0.18,
+      tw: Math.random()*Math.PI*2, drift: Math.random()*0.01 + 0.004 };
+  }
+  for(let i=0;i<80;i++) parts.push(mk(false));
+  window.__boostParticles = function(n){ for(let i=0;i<n;i++) parts.push(mk(true)); };
+  function loop(){
+    ctx.clearRect(0,0,W,H);
+    for(let i=0;i<parts.length;i++){
+      const p = parts[i];
+      p.y += p.vy; p.x += p.vx; p.tw += p.drift;
+      if(p.y > H+12){ parts[i] = mk(true); continue; }
+      if(p.x < -10) p.x = W+10; if(p.x > W+10) p.x = -10;
+      const tw = Math.sin(p.tw)*0.4 + 0.6;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+      ctx.fillStyle = 'rgba(212,175,55,' + (p.a*tw).toFixed(3) + ')';
+      ctx.shadowColor = 'rgba(212,175,55,0.85)'; ctx.shadowBlur = 9;
+      ctx.fill();
+    }
+    ctx.shadowBlur = 0;
+    requestAnimationFrame(loop);
+  }
+  loop();
+})();
+
+/* 2. AMBIENT AUDIO (synthesized rain + drone + soft arpeggio) */
+(function(){
+  const btn = document.getElementById('audioToggle');
+  const label = document.getElementById('audioLabel');
+  let ctx, master, noiseSrc, droneOsc, arpTimer, on = false, ready = false;
+  function build(){
+    ctx = new (window.AudioContext || window.webkitAudioContext)();
+    master = ctx.createGain(); master.gain.value = 0; master.connect(ctx.destination);
+    const len = ctx.sampleRate * 2;
+    const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+    const d = buf.getChannelData(0);
+    for(let i=0;i<len;i++) d[i] = Math.random()*2 - 1;
+    noiseSrc = ctx.createBufferSource(); noiseSrc.buffer = buf; noiseSrc.loop = true;
+    const hp = ctx.createBiquadFilter(); hp.type='highpass'; hp.frequency.value=340;
+    const lp = ctx.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=1300;
+    const ng = ctx.createGain(); ng.gain.value = 0.13;
+    noiseSrc.connect(hp); hp.connect(lp); lp.connect(ng); ng.connect(master);
+    droneOsc = ctx.createOscillator(); droneOsc.type='sine'; droneOsc.frequency.value=55;
+    const droneGain = ctx.createGain(); droneGain.gain.value=0.05;
+    droneOsc.connect(droneGain); droneGain.connect(master);
+    const scale = [220.00, 261.63, 329.63, 440.00, 523.25, 659.25];
+    arpTimer = setInterval(()=>{
+      if(!on) return;
+      const f = scale[Math.floor(Math.random()*scale.length)];
+      const t = ctx.currentTime;
+      const o = ctx.createOscillator(); o.type='triangle'; o.frequency.value=f;
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.linearRampToValueAtTime(0.05, t+0.45);
+      g.gain.exponentialRampToValueAtTime(0.0001, t+2.4);
+      const flt = ctx.createBiquadFilter(); flt.type='lowpass'; flt.frequency.value=1400;
+      o.connect(flt); flt.connect(g); g.connect(master);
+      o.start(t); o.stop(t+2.5);
+    }, 2400);
+    noiseSrc.start(); droneOsc.start();
+    ready = true;
+  }
+  function toggle(){
+    if(!ready) build();
+    if(ctx.state === 'suspended') ctx.resume();
+    on = !on;
+    btn.classList.toggle('on', on);
+    label.textContent = on ? '雨夜·静' : '雨夜';
+    master.gain.cancelScheduledValues(ctx.currentTime);
+    master.gain.setValueAtTime(master.gain.value, ctx.currentTime);
+    master.gain.linearRampToValueAtTime(on ? 0.9 : 0, ctx.currentTime + 0.9);
+  }
+  btn.addEventListener('click', toggle);
+})();
+
+/* 3. THREE.JS 3D BOOK GALLERY */
+const BOOKS = [
+  { title:'白夜行', en:'JOURNEY UNDER THE MIDNIGHT SUN', color:'#11243f',
+    quote:'我的天空里没有太阳，总是黑夜，但并不暗，因为有东西代替了太阳。虽然没有太阳那么明亮，但对我来说已经足够。' },
+  { title:'嫌疑人X的献身', en:'THE DEVOTION OF SUSPECT X', color:'#163829',
+    quote:'如果你过得不幸福，那我做的一切才是徒劳。逻辑的盲点，往往就是人心。' },
+  { title:'解忧杂货店', en:'MIRACLES OF THE NAMIYA GENERAL STORE', color:'#3a2a14',
+    quote:'你的地图是一张白纸，所以即使想决定目的地，也不知道路在哪里。正因如此，你才可以随心所欲地描绘它。' },
+  { title:'新参者', en:'NEWCOMER', color:'#2a1530',
+    quote:'谎言是真相的影子。在影子里能看到什么，取决于光的方向。' },
+];
+let scene, camera, renderer, raycaster, mouse, books3d = [], hovered = null, px=0, py=0, clock=0;
+// dynamic camera distance so all 4 books always fit horizontally regardless of aspect
+function camZ(aspect){ const span=5.8; const t=Math.tan((50*Math.PI/180)/2); return Math.min(Math.max(span/(t*Math.max(aspect,0.35)), 7.2), 16); }
+
+function makeCoverTexture(b){
+  const c = document.createElement('canvas'); c.width=512; c.height=768;
+  const x = c.getContext('2d');
+  const g = x.createLinearGradient(0,0,0,768);
+  g.addColorStop(0, b.color); g.addColorStop(1, '#05060a');
+  x.fillStyle = g; x.fillRect(0,0,512,768);
+  for(let i=0;i<900;i++){ x.fillStyle='rgba(255,255,255,'+(Math.random()*0.035).toFixed(3)+')'; x.fillRect(Math.random()*512, Math.random()*768, 1, 1); }
+  x.strokeStyle='#d4af37'; x.lineWidth=5; x.strokeRect(18,18,476,732);
+  x.strokeStyle='rgba(212,175,55,0.4)'; x.lineWidth=1; x.strokeRect(30,30,452,708);
+  x.fillStyle='#f0d98a'; x.textAlign='center'; x.textBaseline='middle';
+  x.font='bold 72px "Noto Serif SC", serif';
+  const chars = b.title.split('');
+  const gap = chars.length>5 ? 70 : 84;
+  const startY = 384 - (chars.length-1)*gap/2;
+  chars.forEach((ch,i)=>{ x.fillText(ch, 256, startY + i*gap); });
+  x.font='500 22px "Noto Serif SC", serif'; x.fillStyle='rgba(212,175,55,0.72)';
+  x.fillText('东野圭吾', 256, 686);
+  x.font='italic 13px Georgia, serif'; x.fillStyle='rgba(232,200,116,0.5)';
+  x.fillText(b.en, 256, 716);
+  const tex = new THREE.CanvasTexture(c); tex.anisotropy = 8; return tex;
+}
+function makeGlowTexture(){
+  const c = document.createElement('canvas'); c.width=c.height=512;
+  const x = c.getContext('2d');
+  const g = x.createRadialGradient(256,256,0,256,256,256);
+  g.addColorStop(0,'rgba(212,175,55,0.45)'); g.addColorStop(0.5,'rgba(212,175,55,0.1)'); g.addColorStop(1,'rgba(212,175,55,0)');
+  x.fillStyle=g; x.fillRect(0,0,512,512);
+  return new THREE.CanvasTexture(c);
+}
+function createBook(b){
+  const grp = new THREE.Group();
+  const coverTex = makeCoverTexture(b);
+  const pageMat = new THREE.MeshStandardMaterial({ color:0xe8e0cf, roughness:0.85 });
+  const spineColor = new THREE.Color(b.color).multiplyScalar(0.55);
+  const spineMat = new THREE.MeshStandardMaterial({ color:spineColor, roughness:0.5, metalness:0.2 });
+  const backMat  = new THREE.MeshStandardMaterial({ color:0x0a0a0f, roughness:0.6 });
+  const coverMat = new THREE.MeshStandardMaterial({ map:coverTex, emissive:0xd4af37, emissiveMap:coverTex, emissiveIntensity:0.12, roughness:0.4, metalness:0.25 });
+  const mats = [pageMat, spineMat, pageMat, pageMat, coverMat, backMat];
+  const body = new THREE.Mesh(new THREE.BoxGeometry(1.7, 2.5, 0.5), mats);
+  grp.add(body);
+  const accent = new THREE.Mesh(new THREE.BoxGeometry(0.04, 2.0, 0.52), new THREE.MeshStandardMaterial({ color:0xd4af37, metalness:0.7, roughness:0.3, emissive:0xd4af37, emissiveIntensity:0.2 }));
+  accent.position.set(-0.85, 0, 0);
+  grp.add(accent);
+  grp.userData = { coverMat, baseY:0, bookData:b };
+  return grp;
+}
+function initThree(){
+  const container = document.getElementById('three-container');
+  try{
+    scene = new THREE.Scene();
+    scene.fog = new THREE.Fog(0x0b0d12, 9, 22);
+    const w = container.clientWidth, h = container.clientHeight;
+    camera = new THREE.PerspectiveCamera(50, w/h, 0.1, 100);
+    camera.position.set(0, 0.4, camZ(w/h)); camera.lookAt(0,0,0);
+    renderer = new THREE.WebGLRenderer({ antialias:true, alpha:true });
+    renderer.setSize(w, h);
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    renderer.setClearColor(0x000000, 0);
+    container.appendChild(renderer.domElement);
+    scene.add(new THREE.AmbientLight(0x33445a, 0.75));
+    const dir = new THREE.DirectionalLight(0xfff0d0, 0.9); dir.position.set(2,4,6); scene.add(dir);
+    const goldPt = new THREE.PointLight(0xd4af37, 1.1, 32); goldPt.position.set(0,1,4); scene.add(goldPt);
+    const rim = new THREE.PointLight(0x3a5577, 0.55, 30); rim.position.set(-4,2,-4); scene.add(rim);
+    const floor = new THREE.Mesh(new THREE.PlaneGeometry(22,12), new THREE.MeshBasicMaterial({ map:makeGlowTexture(), transparent:true, depthWrite:false, opacity:0.65 }));
+    floor.rotation.x = -Math.PI/2; floor.position.y = -1.55; scene.add(floor);
+    const xs = [-3.9, -1.3, 1.3, 3.9];
+    BOOKS.forEach((b,i)=>{
+      const book = createBook(b);
+      book.position.set(xs[i], 0, 0);
+      scene.add(book); books3d.push(book);
+    });
+    raycaster = new THREE.Raycaster();
+    mouse = new THREE.Vector2(-10,-10);
+    container.addEventListener('pointermove', onMove);
+    container.addEventListener('pointerleave', ()=>{ hovered=null; mouse.set(-10,-10); container.style.cursor='default'; });
+    container.addEventListener('click', onClick);
+    addEventListener('resize', onResize);
+    if(window.ResizeObserver){ new ResizeObserver(onResize).observe(container); }
+    animate();
+  }catch(e){
+    console.warn('WebGL unavailable, using fallback gallery', e);
+    document.body.classList.add('no-webgl');
+    renderFallback();
+  }
+}
+function onMove(e){
+  const r = renderer.domElement.getBoundingClientRect();
+  const x = e.clientX - r.left, y = e.clientY - r.top;
+  mouse.x = (x / r.width) * 2 - 1;
+  mouse.y = -(y / r.height) * 2 + 1;
+  px = mouse.x; py = mouse.y;
+  raycaster.setFromCamera(mouse, camera);
+  const hits = raycaster.intersectObjects(books3d, true);
+  hovered = null;
+  if(hits.length){
+    let o = hits[0].object;
+    while(o && !books3d.includes(o)) o = o.parent;
+    if(o) hovered = books3d.indexOf(o);
+  }
+  renderer.domElement.style.cursor = hovered!==null ? 'pointer' : 'default';
+}
+function onClick(){ if(hovered!==null) openModal(books3d[hovered].userData.bookData); }
+function onResize(){
+  const c = document.getElementById('three-container');
+  const w = c.clientWidth, h = c.clientHeight;
+  if(w < 2 || h < 2) return;
+  camera.aspect = w/h; camera.updateProjectionMatrix();
+  camera.position.z = camZ(w/h);
+  renderer.setSize(w, h);
+}
+function animate(){
+  requestAnimationFrame(animate);
+  clock += 0.016;
+  books3d.forEach((book,i)=>{
+    const ud = book.userData;
+    const isH = hovered === i;
+    const targetY = ud.baseY + (isH ? 0.5 : 0) + Math.sin(clock*0.8 + i)*0.05;
+    const targetRotY = isH ? 0.28 : 0;
+    const targetRotZ = isH ? -0.05 : 0;
+    book.position.y += (targetY - book.position.y) * 0.1;
+    book.rotation.y += (targetRotY - book.rotation.y) * 0.1;
+    book.rotation.z += (targetRotZ - book.rotation.z) * 0.1;
+    const cm = ud.coverMat;
+    const targetEm = isH ? 0.9 : (hovered!==null ? 0.05 : 0.12);
+    cm.emissiveIntensity += (targetEm - cm.emissiveIntensity) * 0.12;
+  });
+  camera.position.x += (px*0.6 - camera.position.x) * 0.04;
+  camera.position.y += (0.4 + py*0.4 - camera.position.y) * 0.04;
+  camera.lookAt(0,0,0);
+  renderer.render(scene, camera);
+}
+function renderFallback(){
+  const root = document.getElementById('galleryFallback');
+  root.innerHTML = BOOKS.map((b,i)=>`
+    <div class="star-card text-center" data-idx="${i}" style="cursor:pointer">
+      <div style="height:160px;border-radius:10px;background:linear-gradient(160deg,${b.color},#05060a);border:1px solid rgba(212,175,55,0.3);display:flex;align-items:center;justify-content:center">
+        <span class="font-serif gold-text text-2xl">${b.title}</span>
+      </div>
+      <p class="text-snow/60 text-xs mt-3 tracking-widest">${b.en}</p>
+    </div>`).join('');
+  root.querySelectorAll('[data-idx]').forEach(el=>{
+    el.addEventListener('click', ()=>openModal(BOOKS[+el.dataset.idx]));
+  });
+}
+
+/* 4. MODAL */
+const modal = document.getElementById('modal');
+function openModal(b){
+  if(!b) return;
+  document.getElementById('modalTitle').textContent = b.title;
+  document.getElementById('modalEn').textContent = b.en;
+  document.getElementById('modalQuote').textContent = '“' + b.quote + '”';
+  document.getElementById('modalAuthor').textContent = '—— 东野圭吾《' + b.title + '》';
+  modal.classList.add('open');
+}
+function closeModal(){ modal.classList.remove('open'); }
+document.getElementById('modalClose').addEventListener('click', closeModal);
+document.getElementById('modalBg').addEventListener('click', closeModal);
+addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
+
+/* 5. CANDLE + LOTTIE + STAR WALL */
+function emberLayer(ind, x, delay, dur, sc){
+  const d = Math.floor(dur*0.25);
+  return {
+    ddd:0, ind:ind, ty:4, nm:'e'+ind, sr:1,
+    ks:{
+      o:{ a:1, k:[{t:delay,s:[0]},{t:delay+d,s:[90]},{t:delay+dur,s:[0]}] },
+      r:{ a:0, k:0 },
+      p:{ a:1, k:[{t:delay,s:[x,340,0]},{t:delay+dur,s:[x+(x-120)*0.35, 30, 0]}] },
+      a:{ a:0, k:[0,0,0] },
+      s:{ a:1, k:[{t:delay,s:[20*sc,20*sc,100]},{t:delay+d,s:[100*sc,100*sc,100]},{t:delay+dur,s:[45*sc,45*sc,100]}] }
+    },
+    ao:0,
+    shapes:[{ ty:'gr', it:[
+      { ty:'el', p:{a:0,k:[0,0]}, s:{a:0,k:[30,30]} },
+      { ty:'fl', c:{a:0,k:[0.831,0.686,0.216,1]}, o:{a:0,k:100} },
+      { ty:'tr', p:{a:0,k:[0,0]}, a:{a:0,k:[0,0]}, s:{a:0,k:[100,100]}, o:{a:0,k:100}, r:{a:0,k:0} }
+    ]}],
+    ip:0, op:120, st:0, bm:0
+  };
+}
+const SPARKLE_DATA = {
+  v:'5.7.4', fr:30, ip:0, op:120, w:240, h:360, nm:'embers', ddd:0, assets:[],
+  layers:[ emberLayer(1,80,0,100,1), emberLayer(2,140,18,90,0.8), emberLayer(3,100,32,110,1.15), emberLayer(4,160,46,95,0.7), emberLayer(5,120,60,100,0.95) ]
+};
+const STAR_QUOTES = [
+  { q:'我的天空里没有太阳，总是黑夜，但并不暗，因为有东西代替了太阳。', s:'《白夜行》' },
+  { q:'世上有两样东西不可直视，一是太阳，二是人心。', s:'《白夜行》' },
+  { q:'如果你过得不幸福，那我做的一切才是徒劳。', s:'《嫌疑人X的献身》' },
+  { q:'逻辑的盲点，往往就是人心。', s:'《嫌疑人X的献身》' },
+  { q:'你的地图是一张白纸，所以即使想决定目的地，也不知道路在哪里。', s:'《解忧杂货店》' },
+  { q:'正因是白纸，你才可以随心所欲地描绘它。', s:'《解忧杂货店》' },
+  { q:'谎言是真相的影子，在影子里能看到什么，取决于光的方向。', s:'《新参者》' },
+  { q:'梦总是突然醒的。就像泡沫，越吹越大，最后啪地破灭。', s:'《时生》' },
+];
+(function buildStarWall(){
+  const wall = document.getElementById('starWall');
+  wall.innerHTML = STAR_QUOTES.map((it,i)=>`
+    <div class="star-card" style="transition-delay:${i*60}ms">
+      <p class="text-snow/85 leading-relaxed text-[0.95rem]"><span class="star-dot"></span>${it.q}</p>
+      <p class="text-goldlt/60 text-xs mt-3 tracking-widest">${it.s}</p>
+    </div>`).join('');
+})();
+let lottieAnim = null, candleLit = false;
+const candle = document.getElementById('candle');
+const candleBtn = document.getElementById('lightCandle');
+const candleLabel = document.getElementById('candleLabel');
+const litWrap = document.getElementById('litWrap');
+candleBtn.addEventListener('click', ()=>{
+  candleLit = !candleLit;
+  if(candleLit){
+    candle.classList.add('lit');
+    litWrap.classList.add('lit-on');
+    document.body.classList.add('candle-lit');
+    candleLabel.textContent = '烛光已点亮';
+    try{
+      if(!lottieAnim && window.lottie){
+        lottieAnim = lottie.loadAnimation({ container: document.getElementById('lottie-spark'), renderer:'svg', loop:true, autoplay:true, animationData: SPARKLE_DATA });
+      }
+      document.getElementById('lottie-spark').style.opacity = 1;
+    }catch(err){ /* CSS candle still works */ }
+    if(window.__boostParticles) window.__boostParticles(60);
+    document.getElementById('starWall').classList.add('shown');
+  } else {
+    candle.classList.remove('lit');
+    litWrap.classList.remove('lit-on');
+    document.body.classList.remove('candle-lit');
+    candleLabel.textContent = '点亮纪念之烛';
+    document.getElementById('lottie-spark').style.opacity = 0;
+    document.getElementById('starWall').classList.remove('shown');
+  }
+});
+
+/* 6. SCROLL REVEAL + ICONS + INIT */
+(function(){
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(en=>{ if(en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target); } });
+  }, { threshold:0.12 });
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+})();
+if(window.lucide) lucide.createIcons();
+if(document.fonts && document.fonts.ready){
+  document.fonts.ready.then(initThree).catch(initThree);
+}else{
+  window.addEventListener('load', initThree);
+}
+</script>
+</body>
+</html>
